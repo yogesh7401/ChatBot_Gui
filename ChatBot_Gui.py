@@ -1,5 +1,5 @@
 import tkinter
-from tkinter import *  
+from tkinter import *
 import io
 import random
 import string 
@@ -10,7 +10,6 @@ warnings.filterwarnings('ignore')
 
 import nltk
 from nltk.stem import WordNetLemmatizer
-from chatterbot.trainers import ChatterBotCorpusTrainer
 
 app = tkinter.Tk()
 
@@ -18,11 +17,10 @@ msg_var=tkinter.StringVar()
 with open('chatbot.txt','r', encoding='utf8', errors ='ignore') as fin:
     raw = fin.read().lower()
 
-    #TOkenisation
-sent_tokens = nltk.sent_tokenize(raw)# converts to list of sentences 
-word_tokens = nltk.word_tokenize(raw)# converts to list of words
+sent_tokens = nltk.sent_tokenize(raw)
+word_tokens = nltk.word_tokenize(raw)
 
-# Preprocessing
+#Preprocessing by WordNetLemmatizer
 lemmer = WordNetLemmatizer()
 def LemTokens(tokens):
     return [lemmer.lemmatize(token) for token in tokens]
@@ -30,7 +28,7 @@ remove_punct_dict = dict((ord(punct), None) for punct in string.punctuation)
 def LemNormalize(text):
     return LemTokens(nltk.word_tokenize(text.lower().translate(remove_punct_dict)))
 
-# Keyword Matching
+# Keyword Matching for greeting
 GREETING_INPUTS = ("hello", "hi", "greetings", "sup", "what's up","hey",)
 GREETING_RESPONSES = ["hi", "hey", "hi there", "hello", "I am glad! You are talking to me"]
 
@@ -41,7 +39,7 @@ def greeting(sentence):
             return random.choice(GREETING_RESPONSES)
 
 
-    # Generating response
+# Generating response
 def response(user_response):
     robo_response=''
     sent_tokens.append(user_response)
@@ -59,31 +57,31 @@ def response(user_response):
         robo_response = robo_response+sent_tokens[idx]
         return robo_response
 def submit():
- 
     msg=msg_var.get()
     user_response = msg
-    print("The name is : " + msg)
 
     flag=True
-    # print("ROBO: My name is Robo. I will answer your queries about Chatbots. If you want to exit, type Bye!")
     while(flag==True):
         user_msg = user_response.lower()
+        listbox.insert(END,"")
+        listbox.insert(END,"Me : "+user_msg)
         if(user_msg!='bye'):
             if(user_msg=='thanks' or user_msg=='thank you' ):
                 msg_var.set("")
                 flag=False
-                print("ROBO: You are welcome..")
+                listbox.insert(END,"Bot : You are welcome..")
             else:
                 if(greeting(user_msg)!=None):
-                    print("ROBO: "+greeting(user_msg))
+                    listbox.insert(END,"Bot : "+greeting(user_msg).capitalize())
                 else:
-                    print("ROBO: ",end="")
-                    print(response(user_msg))
+                    # listbox.insert(END,"Bot : ",end="")
+                    listbox.insert(END,"Bot: "+response(user_msg).capitalize())
                     sent_tokens.remove(user_msg)
         else:      
             msg_var.set("")
             flag=False
-            print("ROBO: Bye! take care..")
+            listbox.insert(END,"Bot : Bye! take care..")
+            # app.destroy()
         msg_var.set("")
         flag=False
 
@@ -91,7 +89,20 @@ app.title("Message bot")
 app.geometry('350x500')
 app.configure(bg='skyblue')
 l = Label(app, text = "Message bot", height = 2, width = 39, font=("Arial")).place(x = 0, y = 0)
-m = Label(app, text='My name is Robo. If you want to exit, type Bye', width = 35, bg= 'white').place(x = 45, y = 50)
-msg = Entry(app, width='45', bd=4, textvariable = msg_var).place(x = 5, y = 460)
-sbmitbtn = Button(app, text = "Submit",command = submit,activebackground = "pink", activeforeground = "blue").place(x = 290, y = 460)
+m = Label(app, text='My name is Bot. If you want to exit, type Bye', width = 35, bg= 'white').place(x = 45, y = 50)
+
+scrollbar = Scrollbar(app)
+scrollbar.pack(side=RIGHT, fill=Y)
+
+listbox = Listbox(app, bg='skyblue', width = 36, font=("Arial", 12), height = 20, borderwidth = 0, fg = 'white')
+listbox.config(highlightbackground='skyblue', highlightcolor='skyblue', yscrollcommand = scrollbar.set)
+scrollbar.config(command = listbox.yview)
+
+listbox.place(x=3,y=75)
+# listbox.pack()
+# message_box = Message(app, text="Hello, Tkinter!", relief=RIDGE).place(x=10,y=100)
+# message_box.pack()
+
+msg = Entry(app, width='40', bd=4, textvariable = msg_var).place(x = 5, y = 460)
+sbmitbtn = Button(app, text = "Submit",command = submit,activebackground = "pink", activeforeground = "blue").place(x = 270, y = 460)
 app.mainloop()
