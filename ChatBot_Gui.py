@@ -9,6 +9,7 @@ import warnings
 warnings.filterwarnings('ignore')
 
 import nltk
+nltk.download('wordnet')
 from nltk.stem import WordNetLemmatizer
 
 app = tkinter.Tk()
